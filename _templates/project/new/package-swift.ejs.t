@@ -9,7 +9,7 @@ import PackageDescription
 let package = Package(
     name: "<%=locals.name%>",
     products: [
-        .library(name: "<%=h.capitalize(locals.name)%>", targets: ["<%=h.capitalize(locals.name)%>"])
+        .library(name: "<%=h.inflection.camelize(locals.name.replace(/-/g, '_'), false)%>", targets: ["<%=h.inflection.camelize(locals.name.replace(/-/g, '_'), false)%>"])
     ],
     dependencies: [
         .package(url: "https://github.com/swift-aws/aws-sdk-swift.git", .upToNextMinor(from: "3.1.0")),
@@ -17,7 +17,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "<%=h.capitalize(locals.name)%>",
+            name: "<%=h.inflection.camelize(locals.name.replace(/-/g, '_'), false)%>",
             dependencies: [
                 "SwiftAWS",
                 "DynamoDB"
@@ -25,9 +25,9 @@ let package = Package(
             path: "./Sources"
         ),
         .testTarget(
-            name: "<%=h.capitalize(locals.name)%>Tests",
+            name: "<%=h.inflection.camelize(locals.name.replace(/-/g, '_'), false)%>Tests",
             dependencies: [
-                "<%=h.capitalize(locals.name)%>"
+                "<%=h.inflection.camelize(locals.name.replace(/-/g, '_'), false)%>"
             ],
             path: "./Tests"
         )
