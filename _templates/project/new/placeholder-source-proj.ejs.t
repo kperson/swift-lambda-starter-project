@@ -1,5 +1,5 @@
 ---
-to: Sources/<%=h.inflection.camelize(locals.name.replace(/-/g, '_'), false)/App.swift%>
+to: Sources/<%=h.inflection.camelize(locals.name.replace(/-/g, '_'), false)%>/App.swift%>
 unless_exists: true
 ---
 import Foundation
