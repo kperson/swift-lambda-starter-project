@@ -88,3 +88,20 @@ extension Router {
         }
     }
 }
+
+extension Response {
+    
+    func decode<T: Decodable>(_ type: T.Type, decoder: JSONDecoder = JSONDecoder()) -> T? {
+        if let data = http.body.data {
+            do {
+                let value = try decoder.decode(type, from: data)
+                return value
+            }
+            catch _ {
+                return nil
+            }
+        }
+        return nil
+    }
+    
+}
