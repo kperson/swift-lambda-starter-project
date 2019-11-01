@@ -8,23 +8,41 @@ import NIO
 import Vapor
 import SwiftAWS
 
-extension EventLoopFuture {
+extension XCTestCase {
     
-    func check(_ timeoutDescription: String, _ duration: TimeInterval,  _ f: (T) -> Void) {
-        do {
-            var isCancelled = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-                if !isCancelled {
-                    XCTFail("timeout: \(timeoutDescription)")
-                }
+    func check<T>(
+        _ future: EventLoopFuture<T>,
+        _ description: String,
+        _ duration: TimeInterval,
+        _ f: (T) -> Void
+    ) {
+        var fValue: T?
+        var fError: Error?
+        let delayExpectation = expectation(description: description)
+        future.whenSuccess { val in
+            fValue = val
+            DispatchQueue.main.sync {
+                delayExpectation.fulfill()
             }
-           let val = try wait()
-            isCancelled = true
-            f(val)
         }
-        catch let error {
-            XCTFail(error.localizedDescription)
+        future.whenFailure { error in
+            fError = error
+            DispatchQueue.main.sync {
+                delayExpectation.fulfill()
+            }
         }
+
+        wait(for: [delayExpectation], timeout: duration)
+        if let v = fValue {
+            f(v)
+        }
+        else if let e = fError {
+            XCTFail(e.localizedDescription)
+        }
+        else {
+            XCTFail("unknown failure")
+        }
+
     }
     
 }
@@ -38,10 +56,8 @@ extension AWSApp {
 }
 
 
-
 extension Router {
-    
-    
+        
     func testRequest(group: EventLoopGroup, httpRequest: HTTPRequest) -> EventLoopFuture<Response> {
         do {
             let application = try Application()
@@ -65,9 +81,6 @@ extension Router {
                 return rs
             }
             let rs = try responder.respond(to: request)
-            rs.whenComplete {
-                application.shutdownGracefully { _ in }
-            }
             return rs
         }
         catch let error {
@@ -75,4 +88,3 @@ extension Router {
         }
     }
 }
-
