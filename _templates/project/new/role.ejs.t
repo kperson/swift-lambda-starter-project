@@ -31,28 +31,27 @@ data "aws_iam_policy_document" "log" {
 
 
 resource "aws_iam_role" "lambda" {
-  assume_role_policy = "${data.aws_iam_policy_document.assume_role.json}"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 
 resource "aws_iam_policy" "log" {
-  policy = "${data.aws_iam_policy_document.log.json}"
+  policy = data.aws_iam_policy_document.log.json
 }
 
 resource "aws_iam_role_policy_attachment" "log" {
-  role       = "${aws_iam_role.lambda.name}"
-  policy_arn = "${aws_iam_policy.log.arn}"
+  role       = aws_iam_role.lambda.name
+  policy_arn = aws_iam_policy.log.arn
 }
 
 
 #hack, we need to wait until the attachements are complete
 data "template_file" "role_arn" {
   depends_on = [
-    "aws_iam_role_policy_attachment.log",
+    aws_iam_role_policy_attachment.log,
   ]
-  template = "$${arn}"
+  template = aws_iam_role.lambda.arn
 
   vars = {
-    arn = "${aws_iam_role.lambda.arn}"
   }
 }

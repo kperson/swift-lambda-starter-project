@@ -5,7 +5,7 @@ sh: cd Build && terraform fmt
 ---
 module "dynamo_<%=locals.table%>" {
   source           = "github.com/kperson/terraform-modules//auto-scaled-dynamo"
-  table_name       = "${var.namespace}_<%=locals.table%>"
+  table_name       = format("%s_<%=locals.table%>", var.namespace)
   <% if(locals.hash_key){ -%>
   hash_key         = "<%=hash_key%>"
   <% } -%>
@@ -35,22 +35,21 @@ module "dynamo_<%=locals.table%>" {
   <% } -%>
 
   <% if(locals.ttl_attribute){ -%>
-  ttl {
-    attribute_name = "<%=ttl_attribute%>"
-    enabled        = true
+  ttl_attribute = {
+    name = "<%=ttl_attribute%>"
   }
   <% } -%>
 }
 
 module "dynamo_<%=locals.table%>_policy" {
   source     = "github.com/kperson/terraform-modules//dynamo-crud-policy"
-  table_arn  = "${module.dynamo_<%=locals.table%>.arn}"
-  stream_arn = "${module.dynamo_<%=locals.table%>.stream_arn}"
+  table_arn  = module.dynamo_<%=locals.table%>.arn
+  stream_arn = module.dynamo_<%=locals.table%>.stream_arn
 }
 
 resource "aws_iam_role_policy_attachment" "dynamo_<%=locals.table%>" {
-  role       = "${aws_iam_role.lambda.name}"
-  policy_arn = "${module.dynamo_<%=locals.table%>_policy.arn}"
+  role       = aws_iam_role.lambda.name
+  policy_arn = module.dynamo_<%=locals.table%>_policy.arn
 }
 
-#TABLE_NAME/ID  = "${module.dynamo_<%=locals.table%>.id}"
+#TABLE_NAME/ID  = module.dynamo_<%=locals.table%>.id

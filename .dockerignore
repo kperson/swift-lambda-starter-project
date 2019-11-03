@@ -1,0 +1,7 @@
+.swiftpm
+.git
+.build
+cache-build.sh
+_templates
+Mockfile
+Build/

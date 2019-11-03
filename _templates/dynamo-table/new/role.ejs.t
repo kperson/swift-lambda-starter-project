@@ -5,4 +5,4 @@ after: depends_on = \[
 skip_if: dynamo_<%=locals.table%>
 sh: cd Build && terraform fmt
 ---
- "aws_iam_role_policy_attachment.dynamo_<%=locals.table%>",
+ aws_iam_role_policy_attachment.dynamo_<%=locals.table%>,
